@@ -1,6 +1,6 @@
 name: flutter_resource_generator
 description: Generator resource class automatically
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/ymyplss/flutter_resource_generator
 
 environment:

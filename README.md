@@ -16,7 +16,7 @@ Firstly, add `flutter_resource_generator` and [build_runner](https://pub.dev/pac
 ```
 dev_dependencies:
   build_runner: ^1.8.1
-  flutter_resource_generator: ^0.0.1
+  flutter_resource_generator: ^1.0.0
 ```
 Then add `ResourceConfig` annotation on your app class
 ```
@@ -49,20 +49,20 @@ Then you can use `R_Image.IMAGE_A` to access this image at anywhere you want
 ## ResourceConfig
 You can use ResourceConfig class to customize how to handle resource file, here is all the parameters you can modify:
 
-* String resourcePath: The relative path of your asset file folder, for example 'assets/', must `NOT` be empty
+* String `resourcePath`: The relative path of your asset file folder, for example 'assets/', must `NOT` be empty
 
-* String imageClassName: The name of image resource class, by default, it is `R_Image`, can be null
+* String `imageClassName`: The name of image resource class, by default, it is `R_Image`, can be null
 
-* String fontClassName: The name of font resource class, by default, it is `R_Font`, can be null
+* String `fontClassName`: The name of font resource class, by default, it is `R_Font`, can be null
 
-* bool handleFontFile: Whether font file will be handled, by default, it is `false`, can be null
+* bool `handleFontFile`: Whether font file will be handled, by default, it is `false`, can be null
 
-* List&lt;String&gt; ignoreExtensions: The file with extension existed in this list will be ignored, can be null
+* List&lt;String&gt; `ignoreExtensions`: The file with extension existed in this list will be ignored, can be null
 
-* List&lt;String&gt; extraImageExtensions: The file with extension existed in [".png", ".jpg", ".jpeg",
+* List&lt;String&gt; `extraImageExtensions`: The file with extension existed in [".png", ".jpg", ".jpeg",
 ".gif", ".webp", ".icon", ".bmp", ".wbmp", ".svg"] or extraImageExtensions will be treat as image, can be null
 
-* Map&lt;String, String&gt; extensionClassNameMapping: By default, the class name of other files will be
+* Map&lt;String, String&gt; `extensionClassNameMapping`: By default, the class name of other files will be
 R_${extension}, for example, the resource class of json files will be `R_Json`. if you want customize the class
 name of json file, like `JsonRes`, you can pass {".json", "JsonRes"}, can be null
 
@@ -113,6 +113,7 @@ first char for class and variable name, so if resource file name is start by num
 ## FAQ
 Q. I add new resource file into project, then run build runner command, why new file is not added into pubsepc
 file and resource class?
+
 A. You need run 'flutter packages pub run build_runner clean' first
 
 ## Contact Info

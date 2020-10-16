@@ -11,7 +11,13 @@ class ClassHandler {
   ClassHandler(this._config);
 
   String generateClasses(List<String> fontFamilies, List<String> imageFiles, Map<String, List<String>> otherFiles) {
-    var fileContent = '';
+    var fileContent = '// **************************************************************************\n'
+        '// if you add new resource file, recommend to run clean first：\n'
+        '// flutter packages pub run build_runner clean \n'
+        '// \n'
+        '// run following command to generate resource class：\n'
+        '// flutter packages pub run build_runner build --delete-conflicting-outputs \n'
+        '// **************************************************************************\n\n';
     if (fontFamilies?.isNotEmpty ?? false) {
       var classContent = _generateClass(_config.fontClassName, fontFamilies, (value) => value.toUpperCase());
       fileContent = '$fileContent$classContent\n';
