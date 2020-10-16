@@ -63,7 +63,7 @@ class ClassHandler {
   String _makeSureLegalChar(String name) {
     name = name.replaceAll(RegExp(r'[^\w$]'), '_');
     if (name.startsWith(RegExp(r'[0-9]'))) {
-      name = '_$name';
+      name = '\$$name';
     }
     return name;
   }
