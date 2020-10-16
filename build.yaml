@@ -1,0 +1,8 @@
+builders:
+  resourceBuilder:
+    import: 'package:flutter_resource_generator/builder.dart'
+    builder_factories: ['resourceBuilder']
+    build_extensions: { '.dart': ['.resource.dart'] }
+    required_inputs: ['.dart']
+    auto_apply: root_package
+    build_to: source
