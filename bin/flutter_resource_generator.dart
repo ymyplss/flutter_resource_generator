@@ -9,27 +9,31 @@ import 'package:flutter_resource_generator/src/generator_controller.dart';
 void main(List<String> args) {
   ArgParser parser = _createParser();
   ArgResults results = parser.parse(args);
-  ResourceConfig config = ResourceConfig.fromArgs(results);
-  if (null != config) {
-    var monitor = results['monitor'] as bool;
-    var target = results['target'] as String;
-    var worker = _Worker(config, monitor, target);
-    worker.start();
+  if (results['help'] as bool) {
+    print(parser.usage);
+  } else {
+    ResourceConfig config = ResourceConfig.fromArgs(results);
+    if (null != config) {
+      var monitor = results['monitor'] as bool;
+      var target = results['target'] as String;
+      var worker = _Worker(config, monitor, target);
+      worker.start();
+    }
   }
 }
 
 ArgParser _createParser() {
   ArgParser parser = ArgParser();
   parser
+    ..addFlag('help', abbr: 'h', help: 'Show usage', defaultsTo: false)
     ..addFlag('monitor',
         abbr: 'm',
         help:
-            'Continue to monitor asset folder after execution of generating resource file',
+            'Continue to monitor asset folder after execution of generating resource file, default is true',
         defaultsTo: true)
     ..addOption('target',
         abbr: 't',
-        help:
-            'Relative path of generated resource class file, default is lib/resource.dart',
+        help: 'Relative path of generated resource class file',
         defaultsTo: 'lib/resource.dart')
     ..addOption(
       'resource-path',
@@ -37,39 +41,35 @@ ArgParser _createParser() {
       help: 'Root folder of all assets, must NOT be null',
     )
     ..addOption('image-class-name',
-        abbr: 'i',
-        help: 'Image resource class name, default is R_Image',
-        defaultsTo: 'R_Image')
+        abbr: 'i', help: 'Image resource class name', defaultsTo: 'R_Image')
     ..addOption('font-class-name',
-        abbr: 'f',
-        help: 'Font resource class name, default is R_Font',
-        defaultsTo: 'R_Font')
+        abbr: 'f', help: 'Font resource class name', defaultsTo: 'R_Font')
     ..addFlag('handle-font-file',
         abbr: 'a',
-        help: 'Whether handle font file or not, default is false',
+        help: 'Handle font file asset, default is false',
         defaultsTo: false)
     ..addFlag('only-add-folder',
         abbr: 'o',
         help:
-            'Whether only add folder path in assets section or add every file item, default is true',
+            'Only add folder path in assets section instead of adding full file path, default is true',
         defaultsTo: true)
     ..addOption(
       'ignore-extensions',
       abbr: 'g',
       help:
-          'The file with extension existed in this list will be ignored, can be null',
+          r'The file with extension existed in this list will be ignored, can be null, separated by ",", e.g. ".txt,.exe"',
     )
     ..addOption(
       'extra-image-extensions',
       abbr: 'x',
       help:
-          r'The file with extension existed in [".png", ".jpg", ".jpeg",".gif", ".webp", ".icon", ".bmp", ".wbmp", ".svg"] or this list will be treat as image, can be null',
+          r'The file with extension existed in [".png", ".jpg", ".jpeg",".gif", ".webp", ".icon", ".bmp", ".wbmp", ".svg"] or this list will be treat as image, can be null, separated by ",", e.g. ".tif,.eps"',
     )
     ..addOption(
       'extension-class-name-mapping',
       abbr: 'c',
       help:
-          r'By default, the class name of other files will be R_${extension}, for example, the resource class of json files will be `R_Json`. if you want customize the class name of json file, like `JsonRes`, you can pass {".json", "JsonRes"}, can be null',
+          r'By default, the class name of other files will be R_${extension}, for example, the resource class of json files will be "R_Json". if you want customize the class name of json file, like "JsonRes", you can pass ".json:JsonRes", can be null, separated by ",", e.g. ".json:JsonRes,.xml:XmlRes"',
     );
   return parser;
 }
@@ -95,6 +95,9 @@ class _Worker {
   void start() {
     print('Start to generate resource class');
     _runWorkerOnce();
+    if (monitor && FileSystemEntity.isWatchSupported) {
+      print('Start to monitor resource folder and pubspec file');
+    }
   }
 
   void _runWorkerOnce([bool onlyUpdateFont = false]) {
@@ -123,7 +126,7 @@ class _Worker {
         }
       }
     } else {
-      print("File watch is not supported by this system");
+      print("File watch is not supported by this system, exit");
     }
   }
 
@@ -136,7 +139,7 @@ class _Worker {
 
   void _watch(FileSystemEntity file, [bool onlyUpdateFont = false]) {
     var subscription = file.watch().listen((event) {
-      print('type:${event.type} path:${event.path}');
+      //print('type:${event.type} path:${event.path}');
       if (event.type == FileSystemEvent.create && event.isDirectory) {
         _watch(Directory(event.path));
       } else {

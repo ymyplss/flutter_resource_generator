@@ -99,10 +99,13 @@ in pubspec file, otherwise these image assets can't be used in your project!
 
 * Map&lt;String, String&gt; `extensionClassNameMapping`: By default, the class name of other files will be
 R_${extension}, for example, the resource class of json files will be `R_Json`. if you want customize the class
-name of json file, like `JsonRes`, you can pass {".json", "JsonRes"}, can be null
+name of json file, like `JsonRes`, you can pass {".json":"JsonRes"}, can be null
 
 ## Parameters
 ```
+-h, --[no-]help                        Show usage
+                                       (defaults to false)
+
 -m, --[no-]monitor                     Continue to monitor asset folder after execution of
                                        generating resource file.
                                        (defaults to true)

@@ -1,3 +1,7 @@
+## [1.1.3] - 2020.10.20
+
+* Add usage info for script.
+
 ## [1.1.2] - 2020.10.20
 
 * Modify readme.
