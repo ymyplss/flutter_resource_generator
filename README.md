@@ -55,6 +55,7 @@ project or modify font family name in pubspec file, you need run build_runner cl
 resource class. This will clean all generated files and re-generate them, it is very time cosuming.
 So we need a way to monitor modification of resource folder and pubspec file, fortunately, there is easy way to do this
 thing, it is dart script.
+
 Firstly, add `flutter_resource_generator` under `dev_dependency` in your pubspec.yaml
 ```
 dev_dependencies:
@@ -64,6 +65,15 @@ Then run command as follows
 ```
 flutter pub run flutter_resource_generator -r <your-asset-root-folder>
 ```
+Or run following command to activate `rgen` executable
+```
+dart pub global activate flutter_resource_generator
+```
+Then you can use short command `rgen` instead of `flutter pub run flutter_resource_generator`
+```
+rgen -r <your-asset-root-folder>
+```
+
 Now everything has done! About more detail of command, please refer to [Parameters](##Parameters)
 
 ## ResourceConfig
@@ -154,9 +164,9 @@ every family item under fonts section in pubspec file, as the font section showe
 class will be something like this
 ```
 abstract class R_Font {
-  static const String FONT_A = "assets/font_a.jpg"
-  static const String FONT_B = "assets/font_b.jpg"
-  static const String FONT_C = "assets/font_c.jpg"
+  static const String FONT_A = "font_a"
+  static const String FONT_B = "font_b"
+  static const String FONT_C = "font_c"
 }
 ```
 

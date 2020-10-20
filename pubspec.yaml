@@ -1,6 +1,6 @@
 name: flutter_resource_generator
 description: Generator resource class automatically by only one commnad based on build runner and dart script, avoid inputing resource file path manually
-version: 1.1.1
+version: 1.1.2
 homepage: https://github.com/ymyplss/flutter_resource_generator
 
 environment:

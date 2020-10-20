@@ -5,9 +5,7 @@ import 'package:args/args.dart';
 import 'package:flutter_resource_generator/resource_config.dart';
 import 'package:flutter_resource_generator/src/generator_controller.dart';
 
-/**
- * Resource class file generator script
- */
+/// Resource class file generator script
 void main(List<String> args) {
   ArgParser parser = _createParser();
   ArgResults results = parser.parse(args);

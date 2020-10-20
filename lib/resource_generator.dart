@@ -6,9 +6,7 @@ import 'package:flutter_resource_generator/resource_config.dart';
 import 'package:flutter_resource_generator/src/generator_controller.dart';
 import 'package:source_gen/source_gen.dart';
 
-/**
- * Resource class content generator
- */
+/// Resource class content generator
 class ResourceGenerator extends GeneratorForAnnotation<ResourceConfig> {
   @override
   generateForAnnotatedElement(
