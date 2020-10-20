@@ -1,6 +1,7 @@
 ## Overview
 
-Import resource file into pubspec.yaml and generate resource class automatically by build runner
+Import resource file into pubspec.yaml and generate resource class automatically by build runner or
+dart script, avoid inputing resource file path manually
 
 ## Getting Started
 
@@ -11,21 +12,23 @@ project root/
         iamge_a.jpg
         image_b.jpg
 ```
+### Based on build_runner
 
 Firstly, add `flutter_resource_generator` and [build_runner](https://pub.dev/packages/build_runner) under `dev_dependency` in your pubspec.yaml
 ```
 dev_dependencies:
   build_runner: ^1.8.1
-  flutter_resource_generator: ^1.0.0
+  flutter_resource_generator: ^1.1.1
 ```
-Then add `ResourceConfig` annotation on your app class
+Then add [ResourceConfig](##ResourceConfig) annotation on your app class
 ```
 @ResourceConfig(resourcePath: 'assets/')
 class MyApp extends StatelessWidget {}
 ```
-Finally, run build runner command
+Finally, run build runner commands as follows
 ```
-flutter packages pub run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner clean
+flutter pub run build_runner build --delete-conflicting-outputs
 ```
 After build runner finished, image file items have been added into pubsepc.yaml
 ```
@@ -46,6 +49,23 @@ abstract class R_Image {
 ```
 Then you can use `R_Image.IMAGE_A` to access this image at anywhere you want
 
+### Based on dart script(Recommended)
+Build runner trigger to re-generate class by modification of class annotation, so after you add new asset file into
+project or modify font family name in pubspec file, you need run build_runner clean and build manually to re-generate
+resource class. This will clean all generated files and re-generate them, it is very time cosuming.
+So we need a way to monitor modification of resource folder and pubspec file, fortunately, there is easy way to do this
+thing, it is dart script.
+Firstly, add `flutter_resource_generator` under `dev_dependency` in your pubspec.yaml
+```
+dev_dependencies:
+  flutter_resource_generator: ^1.1.1
+```
+Then run command as follows
+```
+flutter pub run flutter_resource_generator -r <your-asset-root-folder>
+```
+Now everything has done! About more detail of command, please refer to [Parameters](##Parameters)
+
 ## ResourceConfig
 You can use ResourceConfig class to customize how to handle resource file, here is all the parameters you can modify:
 
@@ -57,6 +77,11 @@ You can use ResourceConfig class to customize how to handle resource file, here 
 
 * bool `handleFontFile`: Whether font file will be handled, by default, it is `false`, can be null
 
+* bool `onlyAddFolder`: Whether only add folder path of asset file instead of full file path, by default, it is `true`,
+can be null. Why not always set this flag to true? Because if you added resolution-aware image assets, for example, 2.0x
+or 3.0x, but you don't provide main assets(1.0x, which is rarely used), you MUST add full file path under assets section
+in pubspec file, otherwise these image assets can't be used in your project!
+
 * List&lt;String&gt; `ignoreExtensions`: The file with extension existed in this list will be ignored, can be null
 
 * List&lt;String&gt; `extraImageExtensions`: The file with extension existed in [".png", ".jpg", ".jpeg",
@@ -65,6 +90,36 @@ You can use ResourceConfig class to customize how to handle resource file, here 
 * Map&lt;String, String&gt; `extensionClassNameMapping`: By default, the class name of other files will be
 R_${extension}, for example, the resource class of json files will be `R_Json`. if you want customize the class
 name of json file, like `JsonRes`, you can pass {".json", "JsonRes"}, can be null
+
+## Parameters
+```
+-m, --[no-]monitor                     Continue to monitor asset folder after execution of
+                                       generating resource file.
+                                       (defaults to true)
+
+-t, --target                           Relative path of generated resource class file
+                                       (defaults to lib/resource.dart)
+
+-r, --resource-path                    refer to ResourceConfig.resourcePath
+
+-i, --image-class-name                 refer to ResourceConfig.imageClassName
+
+-f, --font-class-name                  refer to ResourceConfig.fontClassName
+
+-a, --[no-]handle-font-file            refer to ResourceConfig.handleFontFile
+
+-o, --[no-]only-add-folder             refer to ResourceConfig.onlyAddFolder
+
+-g, --ignore-extensions                refer to ResourceConfig.ignoreExtensions,
+                                       separated by ',', e.g. ".txt,.exe"
+
+-x, --extra-image-extensions           refer to ResourceConfig.extraImageExtensions,
+                                       separated by ',', e.g. ".tif,.eps"
+
+-c, --extension-class-name-mapping     refer to ResourceConfig.extensionClassNameMapping,
+                                       separated by ',', e.g. ".json:JsonRes,.xml:XmlRes"
+
+```
 
 ## Font
 Since font conifguration is very complex, family, weight and style can be set for each font file. You need to
@@ -110,11 +165,30 @@ Some char is legal for file name but ilegal for class or varaiable name, such as
 be replaced by '_' in class name and variable name in generated resource class. And number 0-9 is ilegal as
 first char for class and variable name, so if resource file name is start by number, '$' will be added as prefix.
 
+## Duplicated file name
+If same file name existed in different folder, the class member variable name will append with full folder path which
+join with '_' by all parent folder name with reverse order. For example, there are two file with same name in project
+```
+project root/
+    assets/
+        folder_a/
+            test.jpg
+        folder_b/
+            test.jpg
+```
+Then the generated resource class will be
+```
+abstract class R_Image {
+  static const String TEST_FOLDER_A_ASSETS = "assets/folder_a/test.jpg"
+  static const String TEST_FOLDER_B_ASSETS = "assets/folder_b/test.jpg"
+}
+```
+
 ## FAQ
 Q. I add new resource file into project, then run build runner command, why new file is not added into pubsepc
 file and resource class?
 
-A. You need run 'flutter packages pub run build_runner clean' first
+A. You need run 'flutter pub run build_runner clean' first
 
 ## Contact Info
 ymyplss@hotmail.com

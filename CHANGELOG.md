@@ -1,3 +1,11 @@
+## [1.1.1] - 2020.10.20
+
+* Modify readme.
+
+## [1.1.0] - 2020.10.20
+
+* Add dart script to monitor resource file changes.
+
 ## [1.0.1] - 2020.10.16
 
 * Modify readme.

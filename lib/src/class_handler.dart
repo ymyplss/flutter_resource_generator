@@ -1,51 +1,57 @@
 import 'package:flutter_resource_generator/resource_config.dart';
 import 'package:flutter_resource_generator/src/util.dart';
-
-typedef _MemberNameGenerator = String Function(String value);
+import 'package:collection/collection.dart';
+import 'package:path/path.dart';
 
 class ClassHandler {
-
   final ResourceConfig _config;
   final Map<String, List<String>> _classMemberMap = {};
 
   ClassHandler(this._config);
 
-  String generateClasses(List<String> fontFamilies, List<String> imageFiles, Map<String, List<String>> otherFiles) {
-    var fileContent = '// **************************************************************************\n'
-        '// if you add new resource file, recommend to run clean first：\n'
-        '// flutter packages pub run build_runner clean \n'
-        '// \n'
-        '// run following command to generate resource class：\n'
-        '// flutter packages pub run build_runner build --delete-conflicting-outputs \n'
-        '// **************************************************************************\n\n';
+  String generateClasses(Iterable<String> fontFamilies,
+      Iterable<String> imageFiles, Map<String, Iterable<String>> otherFiles) {
+    var fileContent = '';
     if (fontFamilies?.isNotEmpty ?? false) {
-      var classContent = _generateClass(_config.fontClassName, fontFamilies, (value) => value.toUpperCase());
+      var classContent = _generateClass(_config.fontClassName, fontFamilies,
+          fontFamilies.map((e) => e.toUpperCase()));
       fileContent = '$fileContent$classContent\n';
     }
 
     if (imageFiles?.isNotEmpty ?? false) {
-      var classContent = _generateClass(_config.imageClassName, imageFiles, (value) => getNameWithoutExtensionFromPath(value).toUpperCase());
+      var pathNameMap = _makeSureAssetsNameUnique(imageFiles);
+      var classContent = _generateClass(
+          _config.imageClassName, pathNameMap.keys, pathNameMap.values);
       fileContent = '$fileContent$classContent\n';
     }
 
     if (otherFiles?.isNotEmpty ?? false) {
       for (var entry in otherFiles.entries) {
-        var className = (_config.extensionClassNameMapping?.containsKey(entry.key) ?? false)
-            ? _config.extensionClassNameMapping[entry.key] : 'R_' + entry.key.substring(1, 2).toUpperCase() + entry.key.substring(2);
-        var classContent = _generateClass(className, entry.value, (value) => getNameWithoutExtensionFromPath(value).toUpperCase());
+        var className =
+            (_config.extensionClassNameMapping?.containsKey(entry.key) ?? false)
+                ? _config.extensionClassNameMapping[entry.key]
+                : 'R_' +
+                    entry.key.substring(1, 2).toUpperCase() +
+                    entry.key.substring(2);
+        var pathNameMap = _makeSureAssetsNameUnique(entry.value);
+        var classContent =
+            _generateClass(className, pathNameMap.keys, pathNameMap.values);
         fileContent = '$fileContent$classContent\n';
       }
     }
     return fileContent;
   }
 
-  String _generateClass(String className, List<String> valueList, _MemberNameGenerator nameGenerator) {
+  String _generateClass(
+      String className, Iterable<String> pathList, Iterable<String> nameList) {
     className = _validateClassName(className);
-    var memberContent = '\n';
-    for (var value in valueList) {
-      var memberName = nameGenerator.call(value);
+    var memberContent = '';
+    for (int i = 0; i < pathList.length; i++) {
+      var path = pathList.elementAt(i);
+      var memberName = nameList.elementAt(i);
       memberName = _validateMemberName(className, memberName);
-      memberContent = '''$memberContent  static const String $memberName = '$value';\n''';
+      memberContent =
+          '''$memberContent  static const String $memberName = '$path';\n''';
     }
     return 'abstract class $className {\n'
         '$memberContent'
@@ -84,4 +90,25 @@ class ClassHandler {
     return result;
   }
 
+  Map<String, String> _makeSureAssetsNameUnique(Iterable<String> assetPaths) {
+    Map<String, String> result = {};
+    var namePathMap = groupBy(assetPaths,
+        (path) => getNameWithoutExtensionFromPath(path).toUpperCase());
+    for (var entry in namePathMap.entries) {
+      if (entry.value.length > 1) {
+        for (var path in entry.value) {
+          var name = path
+              .substring(0, path.lastIndexOf('.'))
+              .split(separator)
+              .reversed
+              .join('_')
+              .toUpperCase();
+          result[path] = name;
+        }
+      } else {
+        result[entry.value[0]] = entry.key;
+      }
+    }
+    return result;
+  }
 }
